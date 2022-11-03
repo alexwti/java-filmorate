@@ -38,7 +38,6 @@ public class UserController {
             log.warn("Отсутствует пользоватедб с id: {}", user.getId());
             throw new ValidationException("Ошибка обновления - такого пользователя не существует");
         }
-
         validate(user);
         users.put(user.getId(), user);
         log.info("Пользователь id: {}, логином: {} успешно обновлен", user.getId(), user.getLogin());
@@ -47,24 +46,8 @@ public class UserController {
 
 
     public void validate(User user) {
-        if (user.getLogin().contains(" ")) {
-            log.warn("Введен логин с пробелами: {}", user.getLogin());
-            throw new ValidationException("Логин пользователя не может содержать пробелы");
-        }
-        if (user.getLogin() == null || user.getLogin().isBlank()) {
-            log.warn("Введен пустой логин: {}", user.getLogin());
-            throw new ValidationException("Логин пользователя не может быть пустым");
-        }
-        if (!user.getEmail().contains("@")) {
-            log.warn("В email нет @: {}", user.getEmail());
-            throw new ValidationException("Email должен содержать символ @");
-        }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Некорректная дата рождения: {}", user.getBirthday());
-            throw new ValidationException("Дата рождения не может превышать текущую дату");
         }
 
         Collection<User> userFromCollection = users.values();

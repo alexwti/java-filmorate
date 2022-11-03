@@ -21,7 +21,6 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        validate(film);
         film.setId(id++);
         films.put(film.getId(), film);
         log.info("Фильм: {} добавлен", film.getName());
@@ -39,13 +38,12 @@ public class FilmController {
             log.warn("Фильм id {} отсутствует", film.getId());
             throw new ValidationException("Ошибка обновления - такой фильм отсутствует");
         }
-        validate(film);
         films.put(film.getId(), film);
         log.info("Фильм: {} обновлен", film.getName());
         return film;
     }
 
-    public void validate(Film film) {
+/*    public void validate(Film film) {
         if (film.getReleaseDate().isBefore(DATE_BEFORE)) {
             log.warn("Дата релиза: {}", film.getReleaseDate());
             throw new ValidationException("Некорректная дата релиза фильма");
@@ -71,6 +69,5 @@ public class FilmController {
                 fl.getReleaseDate().equals(film.getReleaseDate()))) {
             log.warn("Фильм к добавлению: ", film);
             throw new ValidationException("Такой фильм уже существует в коллекции");
-        }
-    }
+        }*/
 }
