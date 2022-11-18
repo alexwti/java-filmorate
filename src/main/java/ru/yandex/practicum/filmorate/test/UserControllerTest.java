@@ -6,6 +6,10 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.ValidationService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -17,7 +21,10 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
-    final static UserController userController = new UserController();
+    final static ValidationService validationService = new ValidationService();
+    final static UserStorage userStorage = new InMemoryUserStorage(validationService);
+    final static UserService userService = new UserService(userStorage);
+    final static UserController userController = new UserController(userStorage, userService);
     private static Validator validator;
     static {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
@@ -50,7 +57,7 @@ public class UserControllerTest {
     @Test
     public void validateNameTest() {
         final User user = new User("alexwt@yandex.ru", "alexwt", LocalDate.now());
-        userController.validate(user);
+        validationService.userValidate(user, userStorage.findAll());
         assertEquals(user.getName(), "alexwt");
     }
 

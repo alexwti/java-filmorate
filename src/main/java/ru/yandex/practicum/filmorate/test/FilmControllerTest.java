@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -16,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilmControllerTest {
-    final static FilmController filmController = new FilmController();
+    final static FilmStorage filmStorage = new InMemoryFilmStorage();
+    final static FilmService filmService = new FilmService(filmStorage);
+    final static FilmController filmController = new FilmController(filmStorage, filmService);
     private static Validator validator;
     static {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
