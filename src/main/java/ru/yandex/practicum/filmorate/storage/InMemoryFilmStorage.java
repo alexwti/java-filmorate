@@ -22,18 +22,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film create(Film film) {
         film.setId(id++);
         films.put(film.getId(), film);
-        log.info("Фильм: {} добавлен", film.getName());
         return film;
     }
 
     @Override
     public Film put(Film film) {
-        if (!films.containsKey(film.getId())) {
-            log.warn("Фильм id {} отсутствует", film.getId());
-            throw new NotFoundException(String.format("Ошибка обновления - фильм с id: %d отсутствует", id));
-        }
         films.put(film.getId(), film);
-        log.info("Фильм: {} обновлен", film.getName());
         return film;
     }
 
@@ -44,10 +38,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getById(int id) {
-        if (films.get(id) == null) {
-            log.warn("Фильм id {} отсутствует", id);
-            throw new NotFoundException(String.format("Фильм с id: %d отсутствует", id));
-        }
         return films.get(id);
     }
 
@@ -55,7 +45,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film deleteById(int id) {
         Film film = films.get(id);
         films.remove(id);
-        log.info("Фильм: {} удален", film.getName());
         return film;
     }
 }

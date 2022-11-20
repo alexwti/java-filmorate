@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,8 +15,41 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
-
     private final FilmStorage filmStorage;
+
+    public Film create(Film film) {
+        log.info("Фильм: {} добавлен", film.getName());
+        return filmStorage.create(film);
+    }
+    public Film put(Film film) {
+        if (filmStorage.getById(film.getId()) == null) {
+            log.warn("Фильм id {} отсутствует", film.getId());
+            throw new NotFoundException(String.format("Ошибка обновления - фильм с id: %d отсутствует", film.getId()));
+        }
+        log.info("Фильм: {} обновлен", film.getName());
+        return filmStorage.put(film);
+    }
+
+    public Collection<Film> findAll() {
+        log.info("Список фильмов отправлен");
+        return filmStorage.findAll();
+    }
+
+    public Film getById(int id) {
+        if (filmStorage.getById(id) == null) {
+            log.warn("Фильм id {} отсутствует", id);
+            throw new NotFoundException(String.format("Фильм с id: %d отсутствует", id));
+        }
+        return filmStorage.getById(id);
+    }
+
+    public Film deleteById(int id) {
+        if (filmStorage.getById(id) == null) {
+            throw new NotFoundException(String.format("Фильм с id: %d отсутствует, удаление невозможно", id));
+        }
+        log.info("Фильм с id: " + id + " удалён");
+        return filmStorage.deleteById(id);
+    }
 
     public Film addLike(int filmId, int userId) {
         if (filmStorage.getById(filmId) == null) {

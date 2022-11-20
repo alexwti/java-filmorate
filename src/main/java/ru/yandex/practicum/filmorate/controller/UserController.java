@@ -14,32 +14,31 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
 
     @GetMapping
     public Collection<User> findAll() {
-        return userStorage.findAll();
+        return userService.findAll();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        return userStorage.create(user);
+        return userService.create(user);
     }
 
     @PutMapping
     public User put(@Valid @RequestBody User user) {
-        return userStorage.put(user);
+        return userService.put(user);
     }
 
     @GetMapping("/{id}")
     public User getById(@PathVariable int id) {
-        return userStorage.getById(id);
+        return userService.getById(id);
     }
 
     @DeleteMapping("/{id}")
     public User deleteById(@PathVariable int id) {
-        return userStorage.deleteById(id);
+        return userService.deleteById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

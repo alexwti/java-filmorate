@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,46 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService {
     private final UserStorage userStorage;
+    private final ValidationService validationService;
+
+    public User create(User user) {
+        validationService.userValidate(user, findAll());
+        log.info("Успешно добавлен пользователь с логином: {}, email: {}", user.getLogin(), user.getEmail());
+        return userStorage.create(user);
+    }
+
+    public User put(User user) {
+        if (userStorage.getById(user.getId()) == null) {
+            log.warn("Отсутствует пользователь с id: {}", user.getId());
+            throw new NotFoundException("Ошибка обновления - такого пользователя не существует");
+        }
+        validationService.userValidate(user, findAll());
+        log.info("Пользователь id: {}, логином: {} успешно обновлен", user.getId(), user.getLogin());
+        return userStorage.put(user);
+    }
+
+    public Collection<User> findAll() {
+        log.info("Список пользователей отправлен");
+        return userStorage.findAll();
+    }
+
+    public User getById(int id) {
+        if (userStorage.getById(id) == null) {
+            log.warn("Отсутствует пользователь с id: {}", id);
+            throw new NotFoundException(String.format("Пользователя с id %d не существует", id));
+        }
+        log.info("Пользователь с id: '{}' отправлен", id);
+        return userStorage.getById(id);
+    }
+
+    public User deleteById(int id) {
+        if (userStorage.getById(id) == null) {
+            log.warn("Отсутствует пользователь с id: {}", id);
+            throw new NotFoundException(String.format("Пользователя с id %d не существует", id));
+        }
+        log.info("Пользователь с id: '{}' удален", id);
+        return userStorage.deleteById(id);
+    }
 
     public List<User> addFriend(int fromId, int toId) {
         if (userStorage.getById(fromId) == null || userStorage.getById(toId) == null) {
