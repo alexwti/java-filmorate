@@ -50,18 +50,10 @@ CREATE TABLE "likes_film" (
 );
 
 ALTER TABLE "film" ADD FOREIGN KEY ("rating_id") REFERENCES "rating" ("rating_id");
-
 ALTER TABLE "friendship" ADD FOREIGN KEY ("status_rel_id") REFERENCES "status_rel" ("status_rel_id");
-
 ALTER TABLE "film_genre" ADD FOREIGN KEY ("genre_id") REFERENCES "genre" ("genre_id");
-
 ALTER TABLE "film_genre" ADD FOREIGN KEY ("film_id") REFERENCES "film" ("film_id");
-
 ALTER TABLE "likes_film" ADD FOREIGN KEY ("user_id") REFERENCES "user" ("user_id");
-
 ALTER TABLE "likes_film" ADD FOREIGN KEY ("film_id") REFERENCES "film" ("film_id");
-
 ALTER TABLE "friendship" ADD FOREIGN KEY ("user_from") REFERENCES "user" ("user_id");
-
 ALTER TABLE "friendship" ADD FOREIGN KEY ("user_to") REFERENCES "user" ("user_id");
-
