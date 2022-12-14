@@ -8,8 +8,9 @@ import lombok.Setter;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,7 +31,7 @@ public class User {
     private LocalDate birthday;
 
     @JsonIgnore
-    Set<Integer> friendsID = new HashSet<>();
+    List<User> friends = new ArrayList<>();
 
     public User(String email, String login, LocalDate birthday) {
         this.email = email;
