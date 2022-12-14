@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -19,7 +20,6 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -143,16 +143,19 @@ public class InDbFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getTopRaitingFilms(int count) {
-        final String sqlQuery = "SELECT T.* FROM FILMS T WHERE T.FILM_ID IN" +
-                "(SELECT L.FILM_ID FROM FILM_LIKES L GROUP BY L.FILM_ID ORDER BY COUNT(L.FILM_ID) DESC LIMIT ?)";
+        final String sqlQuery = "SELECT * FROM FILMS ORDER BY RATE DESC LIMIT ?";
         return jdbcTemplate.query(sqlQuery, this::makeFilm, count);
     }
 
     @Override
     public Film addGenre(int filmId, Genre genre) {
         final String sqlQuery = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
-        jdbcTemplate.update(sqlQuery, filmId, genre.getId());
-        return getById(filmId);
+        try {
+            jdbcTemplate.update(sqlQuery, filmId, genre.getId());
+            return getById(filmId);
+        } catch (DuplicateKeyException exception) {
+            return null;
+        }
     }
 
     @Override

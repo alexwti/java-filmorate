@@ -149,45 +149,4 @@ class FilmStorageTest {
         Collection<Film> second = filmStorage.findAll();
         Assertions.assertEquals(first.size(), second.size() + 1);
     }
-
-    @Test
-    public void getTopRaitingFilmsTest() {
-        Film dbFilm1 = filmStorage.create(film1);
-        Film dbFilm2 = filmStorage.create(film2);
-        Film dbFilm3 = filmStorage.create(film3);
-        Film dbFilm4 = filmStorage.create(film4);
-        User dbUser1 = userStorage.create(user1);
-        User dbUser2 = userStorage.create(user2);
-        User dbUser3 = userStorage.create(user3);
-        User dbUser4 = userStorage.create(user4);
-        User dbUser5 = userStorage.create(user5);
-        User dbUser6 = userStorage.create(user6);
-
-        filmStorage.addLike(dbFilm1.getId(), dbUser1.getId());
-        filmStorage.addLike(dbFilm1.getId(), dbUser2.getId());
-        filmStorage.addLike(dbFilm1.getId(), dbUser3.getId());
-        filmStorage.addLike(dbFilm1.getId(), dbUser4.getId());
-        filmStorage.addLike(dbFilm1.getId(), dbUser5.getId());
-        filmStorage.addLike(dbFilm1.getId(), dbUser6.getId());
-
-        filmStorage.addLike(dbFilm2.getId(), dbUser1.getId());
-        filmStorage.addLike(dbFilm2.getId(), dbUser2.getId());
-        filmStorage.addLike(dbFilm2.getId(), dbUser3.getId());
-        filmStorage.addLike(dbFilm2.getId(), dbUser4.getId());
-        filmStorage.addLike(dbFilm2.getId(), dbUser5.getId());
-
-        filmStorage.addLike(dbFilm3.getId(), dbUser1.getId());
-        filmStorage.addLike(dbFilm2.getId(), dbUser2.getId());
-        filmStorage.addLike(dbFilm2.getId(), dbUser3.getId());
-
-        filmStorage.addLike(dbFilm4.getId(), dbUser1.getId());
-
-        List<Film> list = filmStorage.getTopRaitingFilms(10);
-        Assertions.assertEquals(list.size(), 4);
-        Assertions.assertEquals(list.get(0).getId(), dbFilm1.getId());
-
-        filmStorage.removeLike(dbFilm4.getId(), dbUser1.getId());
-        list = filmStorage.getTopRaitingFilms(10);
-        Assertions.assertEquals(list.size(), 3);
-    }
 }
