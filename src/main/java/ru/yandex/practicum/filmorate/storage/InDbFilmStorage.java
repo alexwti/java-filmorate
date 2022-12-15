@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.service.GenreService;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.sql.Date;
@@ -22,11 +22,12 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
+@Primary
 @RequiredArgsConstructor
 public class InDbFilmStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final GenreService genreService;
-    private final MpaService mpaService;
+    private final InDbGenreStorage genreStorage;
+    private final InDbMpaStorage mpaStorage;
 
 
     @Override
@@ -64,22 +65,18 @@ public class InDbFilmStorage implements FilmStorage {
 
     @Override
     public Film put(Film film) {
-        final String sqlQuery = "SELECT * FROM FILMS WHERE FILM_ID = ?";
-        try {
-            jdbcTemplate.queryForObject(sqlQuery, this::makeFilm, film.getId());
-        } catch (EmptyResultDataAccessException exception) {
-            throw new NotFoundException(String.format("Фильм с id %d не найден", film.getId()));
-        }
-
         String sqlQueryUpd = "UPDATE FILMS SET FILM_NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, RATING_ID = ? " +
                 "WHERE FILM_ID = ?";
-        jdbcTemplate.update(sqlQueryUpd,
+        int rowCnt = jdbcTemplate.update(sqlQueryUpd,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId());
+        if (rowCnt == 0) {
+            throw new NotFoundException(String.format("Фильм с id %d не найден", film.getId()));
+        }
 
         final String sqlQueryGenre = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
         jdbcTemplate.update(sqlQueryGenre, film.getId());
@@ -89,7 +86,7 @@ public class InDbFilmStorage implements FilmStorage {
 
         if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
-                addGenre(film.getId(), genre);
+                film = addGenre(film.getId(), genre);
             }
         }
 
@@ -99,7 +96,7 @@ public class InDbFilmStorage implements FilmStorage {
             }
         }
 
-        return getById(film.getId());
+        return film;
     }
 
     @Override
@@ -154,7 +151,7 @@ public class InDbFilmStorage implements FilmStorage {
             jdbcTemplate.update(sqlQuery, filmId, genre.getId());
             return getById(filmId);
         } catch (DuplicateKeyException exception) {
-            return null;
+            return getById(filmId);
         }
     }
 
@@ -180,9 +177,9 @@ public class InDbFilmStorage implements FilmStorage {
                 Objects.requireNonNull(resultSet.getDate("RELEASE_DATE")).toLocalDate(),
                 resultSet.getInt("DURATION"),
                 resultSet.getInt("RATE"),
-                mpaService.getById(resultSet.getInt("RATING_ID")),
+                mpaStorage.getById(resultSet.getInt("RATING_ID")),
                 getLikes(filmId),
-                (List<Genre>) genreService.getFilmGenres(filmId)
+                (List<Genre>) genreStorage.getFilmGenres(filmId)
         );
         return film;
     }

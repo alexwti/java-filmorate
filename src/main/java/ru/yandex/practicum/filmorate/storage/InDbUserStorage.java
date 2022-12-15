@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
+@Primary
 @RequiredArgsConstructor
 public class InDbUserStorage implements UserStorage {
 
@@ -43,16 +45,13 @@ public class InDbUserStorage implements UserStorage {
 
     @Override
     public User put(User user) {
-        final String sqlQuery = "SELECT * FROM USERS WHERE USER_ID = ?";
-        try {
-            jdbcTemplate.queryForObject(sqlQuery, this::makeUser, user.getId());
-        } catch (EmptyResultDataAccessException exception) {
-            throw new NotFoundException(String.format("Пользователь с id %d не найден", user.getId()));
-        }
         final String sqlQueryUpd = "UPDATE USERS SET EMAIL = ?, LOGIN = ?, USER_NAME = ?, BIRTHDAY = ? " +
                 "WHERE USER_ID = ?";
-        jdbcTemplate.update(sqlQueryUpd, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
-        return getById(user.getId());
+        int rowCnt = jdbcTemplate.update(sqlQueryUpd, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
+        if (rowCnt == 0) {
+            throw new NotFoundException(String.format("Пользователь с id %d не найден", user.getId()));
+        }
+        return user;
     }
 
     @Override
