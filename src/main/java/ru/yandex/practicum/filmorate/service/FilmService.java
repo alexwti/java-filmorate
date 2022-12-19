@@ -40,6 +40,7 @@ public class FilmService {
             log.warn("Фильм id {} отсутствует", id);
             throw new NotFoundException(String.format("Фильм с id: %d отсутствует", id));
         }
+        log.info("Отправлен фильм с id: {} ", id);
         return filmStorage.getById(id);
     }
 
@@ -47,7 +48,7 @@ public class FilmService {
         if (filmStorage.getById(id) == null) {
             throw new NotFoundException(String.format("Фильм с id: %d отсутствует, удаление невозможно", id));
         }
-        log.info("Фильм с id: " + id + " удалён");
+        log.info("Фильм с id: {} удалён", id);
         return filmStorage.deleteById(id);
     }
 
@@ -55,9 +56,8 @@ public class FilmService {
         if (filmStorage.getById(filmId) == null) {
             throw new NotFoundException("Фильм не найден");
         }
-        filmStorage.getById(filmId).getLikesUserID().add(userId);
         log.info("Пользователь id: {} поставил лайк фильму id {}", userId, filmId);
-        return filmStorage.getById(filmId);
+        return filmStorage.addLike(filmId, userId);
     }
 
     public Film removeLike(int filmId, int userId) {
@@ -67,13 +67,12 @@ public class FilmService {
         if (!filmStorage.getById(filmId).getLikesUserID().contains(userId)) {
             throw new NotFoundException("Лайка от такого пользователя нет");
         }
-        filmStorage.getById(filmId).getLikesUserID().remove(userId);
         log.info("Пользователь id: {} удалил лайк фильму id {}", userId, filmId);
-        return filmStorage.getById(filmId);
+        return filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getTopRaitingFilms(int count) {
         log.info("Отправлен список {} популярных фильмов", count);
-        return filmStorage.findAll().stream().sorted((o1, o2) -> Integer.compare(o2.getLikesUserID().size(), o1.getLikesUserID().size())).limit(count).collect(Collectors.toList());
+        return filmStorage.getTopRaitingFilms(count);
     }
 }
